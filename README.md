@@ -1,18 +1,18 @@
-# Firewall Insights
+# Fortress
 
-Firewall Insights is a powerful tool designed to make complex firewall rulesets easy to understand. It parses, analyzes, and visualizes `iptables-save` output, helping network administrators, security analysts, and developers quickly identify potential security risks and understand network policies.
+Fortress is a powerful tool designed to make complex firewall rulesets easy to understand. It parses, analyzes, and visualizes `iptables-save` output, helping network administrators, security analysts, and developers quickly identify potential security risks and understand network policies.
 
 The tool comes in two flavors:
 1.  **A rich web interface** for interactive analysis, visualization, and reporting.
 2.  **A command-line interface (CLI)** for quick terminal-based analysis and easy integration into automated scripts.
 
-![Firewall Insights Screenshot](https://storage.googleapis.com/studioprompt-assets/firewall-insights-screenshot.png)
+![Fortress Screenshot](https://storage.googleapis.com/studioprompt-assets/firewall-insights-screenshot.png)
 
 ## What is `iptables` and Why is This Tool Useful?
 
 `iptables` is a command-line utility for Linux that allows a system administrator to configure the IP packet filter rules of the Linux kernel firewall. The raw output of `iptables-save` can be very dense and difficult to read, especially for large, complex rulesets. A single misconfigured rule can create a significant security vulnerability.
 
-**Firewall Insights solves this problem** by transforming that complex text into a human-readable format. It gives you a clear, structured view of your rules, automatically flags common security issues, and provides high-level summaries, so you can see the big picture at a glance.
+**Fortress solves this problem** by transforming that complex text into a human-readable format. It gives you a clear, structured view of your rules, automatically flags common security issues, and provides high-level summaries, so you can see the big picture at a glance.
 
 ## Who is it for?
 
@@ -27,6 +27,7 @@ The tool comes in two flavors:
 -   **Ruleset Parsing**: Paste your `iptables-save` output and instantly get a structured, sortable, and filterable view.
 -   **Summary Dashboard**: Get a high-level overview, including total rules, rule counts by action (ACCEPT, DROP, etc.), and protocol distribution.
 -   **Automated Security Analysis**: The tool automatically flags common issues like overly permissive rules (`0.0.0.0/0`), use of insecure protocols (FTP, Telnet), and risky default policies.
+
 -   **Data Visualization**: Interactive charts show the breakdown of rule actions and protocols.
 -   **AI-Powered Summary**: (Optional) Generate a concise, natural language explanation of your ruleset's purpose using Google's Gemini model.
 -   **Export to JSON**: Download the parsed ruleset in a structured JSON format for use in other scripts or tools.
@@ -49,12 +50,12 @@ This is the simplest way to run the web application on any OS (Windows, macOS, L
 
 1.  **Build the Docker image:**
     ```sh
-    docker build -t firewall-insights .
+    docker build -t fortress .
     ```
 
 2.  **Run the Docker container:**
     ```sh
-    docker run -p 9002:3000 --env-file .env -d firewall-insights
+    docker run -p 9002:3000 --env-file .env -d fortress
     ```
     The application will be accessible at [http://localhost:9002](http://localhost:9002).
 
@@ -63,7 +64,7 @@ This is the simplest way to run the web application on any OS (Windows, macOS, L
 1.  **Clone the repository and install dependencies:**
     ```sh
     git clone <repository-url>
-    cd firewall-insights
+    cd fortress
     npm install
     ```
 
@@ -88,16 +89,16 @@ The CLI version is perfect for quick analysis or use in automated scripts. It ru
 
     *   **Analyze a file:**
         ```sh
-        npx firewall-insights-cli ./path/to/your/rules.txt
+        npx fortress-cli ./path/to/your/rules.txt
         ```
 
     *   **Analyze from standard input (e.g., using `cat`):**
         ```sh
-        cat ./path/to/your/rules.txt | npx firewall-insights-cli
+        cat ./path/to/your/rules.txt | npx fortress-cli
         ```
     *   **Output results as JSON:**
         ```sh
-        npx firewall-insights-cli ./rules.txt --json > analysis.json
+        npx fortress-cli ./rules.txt --json > analysis.json
         ```
 
 ---
@@ -118,5 +119,5 @@ The AI summarization feature uses Google's Gemini model via Genkit. To enable it
 
     *   **CLI with AI Summary:**
         ```sh
-        npx firewall-insights-cli ./rules.txt --ai-summary
+        npx fortress-cli ./rules.txt --ai-summary
         ```

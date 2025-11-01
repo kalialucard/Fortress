@@ -8,7 +8,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-7 w-7 text-primary" />
           <h1 className="text-xl font-bold font-headline tracking-tight text-foreground">
-            Firewall Insights
+            Fortress
           </h1>
         </div>
         <div className="ml-auto">

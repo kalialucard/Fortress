@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  firewall-insights:
+  fortress:
     build:
       context: .
       dockerfile: Dockerfile
-    image: firewall-insights:latest
-    container_name: firewall-insights-app
+    image: fortress:latest
+    container_name: fortress-app
     ports:
       - "9002:3000"
     env_file:

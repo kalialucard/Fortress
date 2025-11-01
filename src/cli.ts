@@ -40,7 +40,7 @@ async function main() {
 
     if (!rawRuleset.trim()) {
         console.error(`${RED}Error: Input is empty. Please provide a file or pipe data to stdin.${RESET}`);
-        console.log('\nUsage: firewall-insights-cli [path/to/rules.txt] [--json] [--ai-summary]');
+        console.log('\nUsage: fortress-cli [path/to/rules.txt] [--json] [--ai-summary]');
         process.exit(1);
     }
 

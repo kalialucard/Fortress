@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Firewall Insights',
+  title: 'Fortress',
   description: 'Parse, analyze, and visualize your firewall rules.',
 };
 
