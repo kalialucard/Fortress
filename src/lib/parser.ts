@@ -54,12 +54,29 @@ export function parseAndAnalyze(text: string): AnalysisResult {
     const rules: FirewallRule[] = [];
     const analysis: RuleAnalysisIssue[] = [];
 
+    // Check for default policies
+    const policyLines = lines.filter(line => line.trim().startsWith(':'));
+    policyLines.forEach(line => {
+        const match = line.match(/:(\S+)\s+(\S+)/);
+        if (match) {
+            const chain = match[1];
+            const policy = match[2];
+            if ((chain === 'INPUT' || chain === 'FORWARD') && policy === 'ACCEPT') {
+                analysis.push({
+                    id: `analysis-default-policy-${chain}`,
+                    ruleId: `policy-${chain}`,
+                    message: `The default policy for the ${chain} chain is ACCEPT. This is a security risk. Best practice is a default DROP policy.`,
+                    severity: 'high',
+                    ruleRaw: line.trim(),
+                });
+            }
+        }
+    });
+
     const parsedLines = lines.map((line, index) => ({ line: line.trim(), index: index + 1 }))
         .filter(item => item.line.startsWith('-A'));
     
-    let lineNum = 0;
     parsedLines.forEach(({ line: trimmedLine, index: originalLineNum }) => {
-        lineNum++;
         const id = `rule-${originalLineNum}`;
         const raw = trimmedLine;
 
@@ -103,6 +120,17 @@ export function parseAndAnalyze(text: string): AnalysisResult {
                 severity: 'high',
                 ruleRaw: rule.raw,
             });
+        }
+        if (rule.raw.includes('--dport 21') || rule.raw.includes('--dport 23')) {
+            if (rule.target === 'ACCEPT') {
+                analysis.push({
+                    id: `analysis-insecure-proto-${rule.id}`,
+                    ruleId: rule.id,
+                    message: 'Insecure Protocol: Rule allows an unencrypted protocol (FTP or Telnet).',
+                    severity: 'medium',
+                    ruleRaw: rule.raw,
+                });
+            }
         }
         if (rule.target === 'DROP' && precedingRules.some(r => r.raw === rule.raw)) {
              analysis.push({
