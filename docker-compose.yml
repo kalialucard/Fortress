@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  firewall-insights:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: firewall-insights:latest
+    container_name: firewall-insights-app
+    ports:
+      - "9002:3000"
+    env_file:
+      - .env
+    restart: unless-stopped

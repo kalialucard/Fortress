@@ -1,4 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
+import { ThemeToggle } from '../theme-toggle';
 
 export function Header() {
   return (
@@ -9,6 +10,9 @@ export function Header() {
           <h1 className="text-xl font-bold font-headline tracking-tight text-foreground">
             Firewall Insights
           </h1>
+        </div>
+        <div className="ml-auto">
+          <ThemeToggle />
         </div>
       </div>
     </header>
