@@ -50,16 +50,17 @@ function getRuleDescription(rule: Omit<FirewallRule, 'id' | 'riskScore' | 'descr
 }
 
 export function parseAndAnalyze(text: string): AnalysisResult {
+    const lines = text.split('\n');
     const rules: FirewallRule[] = [];
     const analysis: RuleAnalysisIssue[] = [];
+
+    const parsedLines = lines.map((line, index) => ({ line: line.trim(), index: index + 1 }))
+        .filter(item => item.line.startsWith('-A'));
+    
     let lineNum = 0;
-
-    text.split('\n').forEach(line => {
+    parsedLines.forEach(({ line: trimmedLine, index: originalLineNum }) => {
         lineNum++;
-        const trimmedLine = line.trim();
-        if (!trimmedLine.startsWith('-A')) return;
-
-        const id = `rule-${lineNum}`;
+        const id = `rule-${originalLineNum}`;
         const raw = trimmedLine;
 
         const chainMatch = trimmedLine.match(/-A\s+(\S+)/);
@@ -88,36 +89,48 @@ export function parseAndAnalyze(text: string): AnalysisResult {
 
         const rule: FirewallRule = { id, raw, chain, protocol, source, destination, target, riskScore, description };
         rules.push(rule);
+    });
 
-        if (target === 'ACCEPT' && source === '0.0.0.0/0') {
+    rules.forEach((rule, index) => {
+        // Find previous rules in the same chain
+        const precedingRules = rules.slice(0, index).filter(r => r.chain === rule.chain);
+
+        if (rule.target === 'ACCEPT' && rule.source === '0.0.0.0/0') {
             analysis.push({
-                id: `analysis-${id}`,
-                ruleId: id,
+                id: `analysis-${rule.id}`,
+                ruleId: rule.id,
                 message: `Overly permissive rule allows access from any source IP address. Consider restricting the source.`,
                 severity: 'high',
-                ruleRaw: raw,
+                ruleRaw: rule.raw,
             });
         }
-        if (target === 'DROP' && rules.some(r => r.id !== id && r.raw === raw)) {
-            analysis.push({
-                id: `analysis-${id}-dup`,
-                ruleId: id,
+        if (rule.target === 'DROP' && precedingRules.some(r => r.raw === rule.raw)) {
+             analysis.push({
+                id: `analysis-${rule.id}-dup`,
+                ruleId: rule.id,
                 message: 'This is a duplicate DROP rule, which might be redundant.',
                 severity: 'low',
-                ruleRaw: raw,
+                ruleRaw: rule.raw,
             });
         }
-        if (rules.findIndex(r => r.id === id) > 5 && target !== "DROP" && target !== "REJECT") {
-             const lastRule = rules[rules.length-2];
-             if(lastRule && (lastRule.target === 'DROP' || lastRule.target === "REJECT") && lastRule.source === '0.0.0.0/0' && lastRule.destination === '0.0.0.0/0') {
+        
+        // Check for unreachable rule
+        for (const precedingRule of precedingRules) {
+            const isBroadDrop = (precedingRule.target === 'DROP' || precedingRule.target === 'REJECT');
+            const coversSource = precedingRule.source === '0.0.0.0/0' || precedingRule.source === rule.source;
+            const coversDest = precedingRule.destination === '0.0.0.0/0' || precedingRule.destination === rule.destination;
+            const coversProto = precedingRule.protocol === 'all' || precedingRule.protocol === rule.protocol;
+
+            if (isBroadDrop && coversSource && coversDest && coversProto) {
                  analysis.push({
-                    id: `analysis-${id}-unreach`,
-                    ruleId: id,
-                    message: `This rule may be unreachable as it comes after a broad 'DROP' or 'REJECT' rule.`,
+                    id: `analysis-${rule.id}-unreach`,
+                    ruleId: rule.id,
+                    message: `This rule may be unreachable as it comes after a broad '${precedingRule.target}' rule in the same chain.`,
                     severity: 'medium',
-                    ruleRaw: raw,
+                    ruleRaw: rule.raw,
                 });
-             }
+                break; // One unreachable finding is enough
+            }
         }
     });
 
@@ -133,12 +146,12 @@ export function parseAndAnalyze(text: string): AnalysisResult {
 
     const summary: RulesetSummary = {
         totalRules: rules.length,
-        ruleCountByAction: Object.entries(actionCounts).map(([name, value]) => ({ name, value })),
-        ruleCountByProtocol: Object.entries(protocolCounts).map(([name, value]) => ({ name, value })),
+        ruleCountByAction: Object.entries(actionCounts).map(([name, value]) => ({ name, value: value ?? 0 })),
+        ruleCountByProtocol: Object.entries(protocolCounts).map(([name, value]) => ({ name, value: value ?? 0 })),
         averageRiskScore: rules.length > 0 ? parseFloat((totalRisk / rules.length).toFixed(1)) : 0,
         highRiskRulesCount: rules.filter(r => r.riskScore > 7).length,
         mediumRiskRulesCount: rules.filter(r => r.riskScore > 4 && r.riskScore <= 7).length,
     };
 
-    return { rules, summary, analysis };
+    return { rules, summary, analysis: [...new Map(analysis.map(item => [item.id, item])).values()] };
 }

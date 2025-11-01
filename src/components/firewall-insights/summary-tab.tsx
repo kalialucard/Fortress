@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, ShieldAlert, ShieldCheck, ListRules } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, List } from 'lucide-react';
 import type { RulesetSummary } from '@/lib/types';
 
 interface SummaryTabProps {
@@ -25,7 +25,7 @@ export function SummaryTab({ summary }: SummaryTabProps) {
       <StatCard
         title="Total Rules"
         value={summary.totalRules}
-        icon={ListRules}
+        icon={List}
         description="Total number of rules parsed."
         colorClass="text-primary"
       />
