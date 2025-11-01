@@ -4,27 +4,8 @@
 import { parseAndAnalyze } from '@/lib/parser';
 import type { AnalysisResult } from '@/lib/types';
 import { summarizeRulesetWithLLM } from '@/ai/flows/summarize-ruleset-llm';
-import { Ratelimit } from "@upstash/ratelimit";
-import { kv } from "@vercel/kv";
-import { headers } from "next/headers";
-
-const ratelimit = new Ratelimit({
-  redis: kv,
-  limiter: Ratelimit.slidingWindow(5, "10 s"),
-});
-
-async function checkRateLimit() {
-    const ip = headers().get("x-forwarded-for") ?? "127.0.0.1";
-    const { success } = await ratelimit.limit(ip);
-    return success;
-}
 
 export async function parseAndAnalyzeRuleset(rawRules: string): Promise<{ result: AnalysisResult | null; error: string | null }> {
-  const success = await checkRateLimit();
-  if (!success) {
-      return { result: null, error: "Rate limit exceeded. Please try again in a few seconds." };
-  }
-
   if (!rawRules || rawRules.trim().length === 0) {
     return { result: null, error: 'Ruleset input cannot be empty.' };
   }
@@ -45,11 +26,6 @@ export async function parseAndAnalyzeRuleset(rawRules: string): Promise<{ result
 }
 
 export async function getAiSummary(ruleset: string): Promise<{ summary: string | null; error:string | null }> {
-  const success = await checkRateLimit();
-  if (!success) {
-      return { summary: null, error: "Rate limit exceeded. Please try again in a few seconds." };
-  }
-
   if (!process.env.GOOGLE_API_KEY) {
       return { summary: null, error: 'AI Summarization is not configured on the server. An API key is required.' };
   }
