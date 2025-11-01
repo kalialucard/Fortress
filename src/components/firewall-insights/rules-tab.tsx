@@ -40,11 +40,6 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
     const [sortKey, setSortKey] = useState<keyof FirewallRule | 'riskScore'>('riskScore');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
     const [chainFilter, setChainFilter] = useState('all');
-    const [openCollapsibles, setOpenCollapsibles] = useState<Record<string, boolean>>({});
-
-    const toggleCollapsible = (id: string) => {
-        setOpenCollapsibles(prev => ({ ...prev, [id]: !prev[id] }));
-    }
 
     const filteredAndSortedRules = rules
         .filter(rule => 
@@ -130,36 +125,36 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
             <TableBody>
                 {filteredAndSortedRules.length > 0 ? (
                     filteredAndSortedRules.map(rule => (
-                    <Collapsible asChild key={rule.id} tagName="tbody" open={openCollapsibles[rule.id] || false} onOpenChange={() => toggleCollapsible(rule.id)}>
+                    <Collapsible key={rule.id} asChild>
                         <>
-                            <TableRow className="hover:bg-muted/50">
-                                <TableCell>
-                                <CollapsibleTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-180 transition-transform">
-                                        <ChevronDown className="h-4 w-4" />
-                                        <span className="sr-only">Toggle details</span>
-                                    </Button>
-                                </CollapsibleTrigger>
-                                </TableCell>
-                                <TableCell className="font-medium">{rule.chain}</TableCell>
-                                <TableCell><Badge variant="outline" className={getProtocolBadgeClass(rule.protocol)}>{rule.protocol}</Badge></TableCell>
-                                <TableCell><code className="font-code">{rule.source}</code></TableCell>
-                                <TableCell><code className="font-code">{rule.destination}</code></TableCell>
-                                <TableCell>{rule.target}</TableCell>
-                                <TableCell>
-                                <Badge variant={getRiskBadgeVariant(rule.riskScore)}>{rule.riskScore}</Badge>
+                        <TableRow>
+                            <TableCell>
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-180 transition-transform">
+                                    <ChevronDown className="h-4 w-4" />
+                                    <span className="sr-only">Toggle details</span>
+                                </Button>
+                            </CollapsibleTrigger>
+                            </TableCell>
+                            <TableCell className="font-medium">{rule.chain}</TableCell>
+                            <TableCell><Badge variant="outline" className={getProtocolBadgeClass(rule.protocol)}>{rule.protocol}</Badge></TableCell>
+                            <TableCell><code className="font-code">{rule.source}</code></TableCell>
+                            <TableCell><code className="font-code">{rule.destination}</code></TableCell>
+                            <TableCell>{rule.target}</TableCell>
+                            <TableCell>
+                            <Badge variant={getRiskBadgeVariant(rule.riskScore)}>{rule.riskScore}</Badge>
+                            </TableCell>
+                        </TableRow>
+                        <CollapsibleContent asChild>
+                            <TableRow className="bg-muted/50">
+                                <TableCell colSpan={7} className="p-0">
+                                    <div className="p-4 space-y-2">
+                                    <p className="text-sm text-muted-foreground">{rule.description}</p>
+                                    <code className="block text-xs font-code p-2 bg-background rounded-md border">{rule.raw}</code>
+                                    </div>
                                 </TableCell>
                             </TableRow>
-                            <CollapsibleContent asChild>
-                                <TableRow className="bg-muted/50">
-                                    <TableCell colSpan={7} className="p-0">
-                                        <div className="p-4 space-y-2">
-                                        <p className="text-sm text-muted-foreground">{rule.description}</p>
-                                        <code className="block text-xs font-code p-2 bg-background rounded-md border">{rule.raw}</code>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            </CollapsibleContent>
+                        </CollapsibleContent>
                         </>
                     </Collapsible>
                     ))
