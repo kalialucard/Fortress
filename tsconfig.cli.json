@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist",
+    "noEmit": false,
+    "isolatedModules": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/cli.ts", "src/lib/parser.ts", "src/lib/types.ts", "src/app/actions.ts", "src/ai/**/*.ts"],
+  "exclude": ["node_modules", "src/app", "src/components"]
+}
