@@ -40,11 +40,6 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
     const [sortKey, setSortKey] = useState<keyof FirewallRule | 'riskScore'>('riskScore');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
     const [chainFilter, setChainFilter] = useState('all');
-    const [openCollapsibles, setOpenCollapsibles] = useState<Record<string, boolean>>({});
-
-    const toggleCollapsible = (id: string) => {
-        setOpenCollapsibles(prev => ({ ...prev, [id]: !prev[id] }));
-    };
 
     const filteredAndSortedRules = rules
         .filter(rule => 
@@ -130,7 +125,7 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
             <TableBody>
                 {filteredAndSortedRules.length > 0 ? (
                     filteredAndSortedRules.map(rule => (
-                    <Collapsible key={rule.id} asChild open={openCollapsibles[rule.id] || false} onOpenChange={() => toggleCollapsible(rule.id)}>
+                    <Collapsible key={rule.id} asChild>
                         <>
                         <TableRow>
                             <TableCell>
