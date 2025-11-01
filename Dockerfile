@@ -1,46 +1,29 @@
-# Stage 1: Build the application
-FROM node:18-alpine AS builder
-
-# Set working directory
+# 1. Base Image for dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
+COPY package.json ./
 RUN npm install
 
-# Copy the rest of the application source code
+# 2. Builder Image
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Set environment variables for build
-ARG GOOGLE_API_KEY
-ENV GOOGLE_API_KEY=$GOOGLE_API_KEY
-
-# Build the Next.js application
 RUN npm run build
 
-# Stage 2: Production environment
+# 3. Production Image
 FROM node:18-alpine AS runner
-
 WORKDIR /app
 
-# Copy built application from the builder stage
-COPY --from=builder /app/.next ./.next
+ENV NODE_ENV=production
+
+# You can disable the Next.js telemetry here
+# ENV NEXT_TELEMETRY_DISABLED 1
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/next.config.ts ./next.config.ts
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Install production dependencies
-RUN npm install --omit=dev
-
-# Expose the port the app runs on
+# The default port is 3000, but can be overridden by the PORT environment variable
 EXPOSE 3000
-
-# Set environment variables for runtime
-ARG GOOGLE_API_KEY
-ENV GOOGLE_API_KEY=$GOOGLE_API_KEY
-ENV PORT=3000
-
-# Command to run the application
-CMD ["npm", "start", "--", "-p", "3000"]
+CMD ["node", "server.js"]
