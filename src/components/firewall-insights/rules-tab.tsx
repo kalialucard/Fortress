@@ -126,7 +126,7 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
             {filteredAndSortedRules.map(rule => (
               <Collapsible asChild key={rule.id} tagName="tr">
                 <>
-                  <TableRow className="hover:bg-muted/50 cursor-pointer">
+                  <TableRow className="hover:bg-muted/50">
                     <TableCell>
                       <CollapsibleTrigger asChild>
                          <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-180 transition-transform">
@@ -145,14 +145,14 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
                     </TableCell>
                   </TableRow>
                   <CollapsibleContent asChild>
-                    <tr className="bg-muted/50">
+                    <TableRow className="bg-muted/50">
                       <TableCell colSpan={7} className="p-0">
                           <div className="p-4 space-y-2">
                             <p className="text-sm text-muted-foreground">{rule.description}</p>
                             <code className="block text-xs font-code p-2 bg-background rounded-md border">{rule.raw}</code>
                           </div>
                       </TableCell>
-                    </tr>
+                    </TableRow>
                   </CollapsibleContent>
                 </>
               </Collapsible>
