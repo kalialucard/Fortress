@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, ShieldAlert, ShieldCheck, List } from 'lucide-react';
 import type { RulesetSummary } from '@/lib/types';
