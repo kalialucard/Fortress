@@ -8,11 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { Badge } from '@/components/ui/badge';
 import type { FirewallRule, Protocol } from '@/lib/types';
 import { ChevronDown, Filter, ArrowDownUp, Download } from 'lucide-react';
@@ -40,6 +35,11 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
     const [sortKey, setSortKey] = useState<keyof FirewallRule | 'riskScore'>('riskScore');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
     const [chainFilter, setChainFilter] = useState('all');
+    const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
+
+    const toggleRow = (id: string) => {
+        setOpenRows(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     const filteredAndSortedRules = rules
         .filter(rule => 
@@ -125,16 +125,13 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
             <TableBody>
                 {filteredAndSortedRules.length > 0 ? (
                     filteredAndSortedRules.map(rule => (
-                    <Collapsible key={rule.id} asChild>
-                        <>
+                    <React.Fragment key={rule.id}>
                         <TableRow>
                             <TableCell>
-                            <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-180 transition-transform">
-                                    <ChevronDown className="h-4 w-4" />
+                                <Button variant="ghost" size="sm" className="w-9 p-0" onClick={() => toggleRow(rule.id)}>
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${openRows[rule.id] ? 'rotate-180' : ''}`} />
                                     <span className="sr-only">Toggle details</span>
                                 </Button>
-                            </CollapsibleTrigger>
                             </TableCell>
                             <TableCell className="font-medium">{rule.chain}</TableCell>
                             <TableCell><Badge variant="outline" className={getProtocolBadgeClass(rule.protocol)}>{rule.protocol}</Badge></TableCell>
@@ -145,7 +142,7 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
                             <Badge variant={getRiskBadgeVariant(rule.riskScore)}>{rule.riskScore}</Badge>
                             </TableCell>
                         </TableRow>
-                        <CollapsibleContent asChild>
+                        {openRows[rule.id] && (
                             <TableRow className="bg-muted/50">
                                 <TableCell colSpan={7} className="p-0">
                                     <div className="p-4 space-y-2">
@@ -154,9 +151,8 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
                                     </div>
                                 </TableCell>
                             </TableRow>
-                        </CollapsibleContent>
-                        </>
-                    </Collapsible>
+                        )}
+                    </React.Fragment>
                     ))
                 ) : (
                     <TableRow>
