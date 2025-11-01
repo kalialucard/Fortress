@@ -28,10 +28,10 @@ const getRiskBadgeVariant = (score: number): 'destructive' | 'secondary' | 'defa
 
 const getProtocolBadgeClass = (protocol: Protocol): string => {
     switch (protocol) {
-        case 'tcp': return 'bg-blue-100 text-blue-800 border-blue-300';
-        case 'udp': return 'bg-purple-100 text-purple-800 border-purple-300';
-        case 'icmp': return 'bg-green-100 text-green-800 border-green-300';
-        default: return 'bg-gray-100 text-gray-800 border-gray-300';
+        case 'tcp': return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-700';
+        case 'udp': return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/50 dark:text-purple-200 dark:border-purple-700';
+        case 'icmp': return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-200 dark:border-green-700';
+        default: return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500';
     }
 }
 
@@ -124,7 +124,7 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
           </TableHeader>
           <TableBody>
             {filteredAndSortedRules.map(rule => (
-              <Collapsible asChild key={rule.id}>
+              <Collapsible asChild key={rule.id} tagName="tr">
                 <>
                   <TableRow className="hover:bg-muted/50 cursor-pointer">
                     <TableCell>
