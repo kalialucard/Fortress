@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/collapsible"
 import { Badge } from '@/components/ui/badge';
 import type { FirewallRule, Protocol } from '@/lib/types';
-import { ChevronDown, Filter, ArrowDownUp } from 'lucide-react';
+import { ChevronDown, Filter, ArrowDownUp, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '../ui/button';
 
 const getRiskBadgeVariant = (score: number): 'destructive' | 'secondary' | 'default' => {
   if (score > 7) return 'destructive';
@@ -64,6 +65,18 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
         }
     }
 
+    const handleExport = () => {
+        const dataStr = JSON.stringify(filteredAndSortedRules, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = 'firewall-rules.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    }
+
     const SortableHeader = ({ tKey, label }: { tKey: keyof FirewallRule | 'riskScore', label: string }) => (
         <TableHead className="cursor-pointer" onClick={() => handleSort(tKey)}>
             <div className="flex items-center gap-2">
@@ -80,14 +93,20 @@ export function RulesTab({ rules }: { rules: FirewallRule[] }) {
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Filter rules..." value={filter} onChange={e => setFilter(e.target.value)} className="pl-10" />
             </div>
-            <Select value={chainFilter} onValueChange={setChainFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Filter by chain" />
-                </SelectTrigger>
-                <SelectContent>
-                    {uniqueChains.map(chain => <SelectItem key={chain} value={chain}>{chain === 'all' ? 'All Chains' : chain}</SelectItem>)}
-                </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+                <Select value={chainFilter} onValueChange={setChainFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                        <SelectValue placeholder="Filter by chain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {uniqueChains.map(chain => <SelectItem key={chain} value={chain}>{chain === 'all' ? 'All Chains' : chain}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                 <Button variant="outline" onClick={handleExport} disabled={filteredAndSortedRules.length === 0}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Export JSON
+                </Button>
+            </div>
         </div>
 
       <div className="border rounded-lg overflow-hidden">
