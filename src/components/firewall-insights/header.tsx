@@ -1,5 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from '../theme-toggle';
+import { ClientOnly } from '../client-only';
 
 export function Header() {
   return (
@@ -12,7 +13,9 @@ export function Header() {
           </h1>
         </div>
         <div className="ml-auto">
-          <ThemeToggle />
+          <ClientOnly>
+            <ThemeToggle />
+          </ClientOnly>
         </div>
       </div>
     </header>
